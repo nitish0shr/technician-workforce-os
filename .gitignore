@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+.DS_Store
+server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
+server/data/*.sqlite
+server/data/*.sqlite.bak
+server/data/*.sqlite.tmp
+.env
+npm-debug.log*

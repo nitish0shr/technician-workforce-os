@@ -1,0 +1,19 @@
+# Replit run configuration for Technician Workforce OS
+run = "npm install && (npm run build || npm run build:desktop) && npm start"
+entrypoint = "server/index.js"
+modules = ["nodejs-20"]
+hidden = [".config", "dist", "node_modules"]
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+NODE_ENV = "production"
+
+[[ports]]
+localPort = 3001
+externalPort = 80
+
+[deployment]
+run = ["sh", "-c", "(npm run build || npm run build:desktop) && npm start"]
+deploymentTarget = "cloudrun"

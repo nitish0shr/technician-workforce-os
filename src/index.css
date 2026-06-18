@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f6f7f9;
+  color: #1a1f29;
+  font-feature-settings: "cv05" 1, "ss01" 1;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* App canvas with the redesign's soft radial tint at the top-right. */
+.app-bg {
+  background-color: #f6f7f9;
+  background-image: radial-gradient(1200px 600px at 80% -10%, #eef1ff 0%, rgba(238, 241, 255, 0) 60%);
+  background-attachment: fixed;
+}
+
+* {
+  border-color: #e4e7ec;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.18);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d9e0;
+  border-radius: 8px;
+  border: 2px solid #f6f7f9;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c0c7d1;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface shadow-card;
+  }
+  .card-raised {
+    @apply rounded-xl border border-line bg-surface-raised shadow-card;
+  }
+  .panel-title {
+    @apply text-[13px] font-semibold tracking-tight text-ink;
+  }
+  .muted {
+    @apply text-ink-muted;
+  }
+  .faint {
+    @apply text-ink-faint;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-surface-raised px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface-hover hover:border-line disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/55 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-dim bg-brand-dim/90 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-dim disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+  }
+  .focusable {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-inset;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-canvas px-3 py-1.5 text-[13px] text-ink placeholder:text-ink-faint outline-none transition-colors focus:border-brand/60 focus:ring-2 focus:ring-brand/15;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-[3px] text-[11.5px] font-medium leading-none text-ink-strong whitespace-nowrap;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md border border-line bg-surface px-1.5 py-0.5 text-[11px] font-medium text-ink-muted;
+  }
+  .row-hover {
+    @apply transition-colors hover:bg-surface-hover/60;
+  }
+  .kbd {
+    @apply inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-line bg-surface-raised px-1 text-[10px] font-medium text-ink-faint;
+  }
+  .section-label {
+    @apply text-[10.5px] font-semibold uppercase tracking-[0.06em] text-ink-faint;
+  }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: #e9edf1;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
