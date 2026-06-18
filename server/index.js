@@ -5,28 +5,15 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import api from "./api.js";
-import { seedAll, ensureRules, pruneRules, seedTechnicians, seedPlanningAreas } from "./seed.js";
-import { db } from "./db.js";
+import { boot } from "./boot.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const PORT = process.env.PORT || 3001;
 const isProd = process.env.NODE_ENV === "production";
 
-// Auto-seed on first boot so the app "just works" on Replit with no extra steps.
-try {
-  const count = db.prepare("SELECT COUNT(*) c FROM markets").get().c;
-  if (count === 0) {
-    seedAll();
-    console.log("[workforce-os] Database empty — seeded sample markets.");
-  }
-  ensureRules(); // pick up any rules added since the DB was first seeded
-  pruneRules();  // drop retired rules (e.g. the old cost assumptions)
-  seedTechnicians();   // technician roster for retention
-  seedPlanningAreas(); // planning-area requisition-planning data if empty
-} catch (e) {
-  console.error("[workforce-os] Seed check failed:", e.message);
-}
+// Auto-seed on first boot so the app "just works" with no extra steps.
+boot();
 
 const app = express();
 // CORS is open by default for local dev (single-port prod is same-origin); lock it down

@@ -1,5 +1,6 @@
 import initSqlJs from "sql.js";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -20,8 +21,12 @@ import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, "data");
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+// Serverless hosts (Vercel/Lambda) mount the app code read-only — only the system
+// temp dir is writable. Detect that and persist there so boot never crashes; the
+// dashboard is read-only seed data, so an ephemeral /tmp copy per cold start is fine.
+const READONLY_FS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_REGION);
+const DATA_DIR = READONLY_FS ? path.join(os.tmpdir(), "workforce-data") : path.join(__dirname, "data");
+try { if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
 const DB_PATH = path.join(DATA_DIR, "workforce.sqlite");
 
 const SQL = await initSqlJs({ locateFile: () => require.resolve("sql.js/dist/sql-wasm.wasm") });
