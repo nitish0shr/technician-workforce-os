@@ -5,6 +5,7 @@ import { getRulesMap, enrich, allMarketsEnriched, marketById } from "./compute.j
 import { parseCSV, toCSV, coerceMarketRow, MARKET_CSV_COLUMNS } from "./csv.js";
 import { retentionSummary } from "./pipeline.js";
 import { reqPlannerReport } from "./reqplanner.js";
+import { marketStability } from "./stability.js";
 
 const tally = (arr) => { const m = {}; for (const x of arr) m[x] = (m[x] || 0) + 1; return m; };
 const allTechnicians = () => db.prepare("SELECT * FROM technicians").all();
@@ -445,6 +446,41 @@ router.get("/req-planner", (req, res) => {
   const areas = db.prepare("SELECT * FROM planning_areas ORDER BY code").all();
   const metrics = db.prepare("SELECT * FROM area_metrics").all();
   res.json({ generated_at: nowISO(), ...reqPlannerReport(areas, metrics) });
+});
+
+/* --------------------------- recommendation stability -------------------- */
+// PRD §15.10/§15.12 — the anti-flapping layer. Shows, per market, the stable
+// committed action vs. what the naive (legacy) signal would flip to, plus
+// persistence, cooldown, and "why did this change".
+router.get("/stability", (req, res) => {
+  const markets = allMarketsEnriched();
+  const today = nowISO().slice(0, 10);
+  const rows = markets.map((m) => {
+    const s = marketStability(m.rec.market_readiness_score, m.id, today);
+    return {
+      id: m.id, market: m.market, skill: m.skill_type, planning_area: m.planning_area,
+      owner: m.owner, readiness: m.rec.market_readiness_score, ...s,
+    };
+  }).sort((a, b) => {
+    const order = { Pending: 0, Cooldown: 1, Stable: 2 };
+    return order[a.state] - order[b.state] || b.raw_reversals - a.raw_reversals;
+  });
+
+  const rawReversals = rows.reduce((a, r) => a + r.raw_reversals, 0);
+  const committedReversals = rows.reduce((a, r) => a + r.committed_reversals, 0);
+  const summary = {
+    markets: rows.length,
+    stable: rows.filter((r) => r.state === "Stable").length,
+    pending: rows.filter((r) => r.state === "Pending").length,
+    cooldown: rows.filter((r) => r.state === "Cooldown").length,
+    raw_reversals: rawReversals,
+    committed_reversals: committedReversals,
+    reversals_avoided: rawReversals - committedReversals,
+    stability_improvement: rawReversals ? Math.round(((rawReversals - committedReversals) / rawReversals) * 100) : 0,
+  };
+  const byAction = {};
+  for (const r of rows) byAction[r.committed_action] = (byAction[r.committed_action] || 0) + 1;
+  res.json({ generated_at: nowISO(), summary, byAction, rows });
 });
 
 /* ------------------------------- changes --------------------------- */

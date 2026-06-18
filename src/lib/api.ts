@@ -31,6 +31,7 @@ export const api = {
   demandSupply: () => req<DemandSupplyReport>("/demand-supply"),
   reqPlanner: () => req<any>("/req-planner"),
   retention: () => req<any>("/retention"),
+  stability: () => req<any>("/stability"),
   actionCenter: () => req<any>("/action-center"),
   startReadiness: () => req<any>("/start-readiness"),
   dataHealth: () => req<any[]>("/data-health"),

@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, ListChecks, Target, Scale, CalendarClock, HeartPulse, LayoutGrid,
-  ShieldCheck, Megaphone, FlaskConical, Activity, SlidersHorizontal,
+  ShieldCheck, Megaphone, FlaskConical, Activity, SlidersHorizontal, Waves,
 } from "lucide-react";
 
 export interface NavItem {
@@ -23,6 +23,7 @@ export const NAV: NavItem[] = [
 
   // Secondary — under "More".
   { path: "/start-readiness", label: "Start Readiness", icon: CalendarClock, group: "Plan", blurb: "Go-live risk on upcoming starts" },
+  { path: "/stability", label: "Recommendation Stability", icon: Waves, group: "Govern", blurb: "Anti-flapping: stable actions, not weekly swings" },
   { path: "/leadership-decisions", label: "Leadership Decisions", icon: ShieldCheck, group: "Govern", blurb: "Exceptions & risk ownership" },
   { path: "/demand-handoffs", label: "Demand Handoffs", icon: Megaphone, group: "Govern", blurb: "Create demand before hiring" },
   { path: "/scenario-lab", label: "Scenario Lab", icon: FlaskConical, group: "Plan", blurb: "Model hiring strategies" },
