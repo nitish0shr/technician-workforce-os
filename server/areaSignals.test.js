@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { areaSignals, seasonalForecast } from "./areaSignals.js";
 import { retentionSummary } from "./pipeline.js";
+import { priorityExplain } from "./reqplanner.js";
 
 const TODAY = new Date("2026-06-18T00:00:00Z");
 const area = { id: 7, code: "4755_A", name: "Sample", zip: "30303", region: "South" };
@@ -37,6 +38,16 @@ test("seasonalForecast returns a projected volume", () => {
   const f = seasonalForecast("HVAC", 100, TODAY);
   assert.equal(typeof f.projected, "number");
   assert.equal(f.delta, f.projected - 100);
+});
+
+test("priorityExplain names the factors that drove the verdict", () => {
+  const surge = { forecast: { trend: "Surge ahead", pct: 8 }, license_risk: "High", territory: "Rural" };
+  const crit = priorityExplain("Critical", 4, 14.2, surge);
+  assert.match(crit.reason, /^Critical/);
+  assert.ok(crit.factors.some((f) => f.includes("reqs to open")));
+  assert.ok(crit.factors.some((f) => f.includes("run-time high")));
+  const lim = priorityExplain("Limited", 0, 2, { forecast: { trend: "Cooling", pct: -8 } });
+  assert.match(lim.reason, /Limited/);
 });
 
 test("retentionSummary computes tenure and 90-day trajectory", () => {

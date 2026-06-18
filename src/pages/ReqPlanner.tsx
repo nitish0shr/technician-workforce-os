@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { LayoutGrid, Table2, Map, Search, AlertTriangle, ChevronRight } from "lucide-react";
+import { LayoutGrid, Table2, Map, Search, AlertTriangle, ChevronRight, Info } from "lucide-react";
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader } from "../components/page";
@@ -24,6 +24,16 @@ const colsFor = (fam: string) => FAMILY_COLS[fam] || DEFAULT_COLS;
 // Grouped-column headers stay monochrome; the open/close column colors carry meaning.
 const FAMILY_HEAD = "bg-canvas text-ink-strong";
 const PRIORITY_DOT: Record<string, string> = { Critical: "bg-red-600", Moderate: "bg-amber-500", Limited: "bg-zinc-400" };
+// Plain-language key so the recruitment team can read the dense table cold.
+const LEGEND: [string, string][] = [
+  ["Priority", "Critical / Moderate / Limited hiring need for the area"],
+  ["D2C RT · Other RT", "Run-time (utilization) index by channel — higher = busier"],
+  ["D2C Vol · Other Vol", "Job volume by channel (Other = B2B / non-D2C)"],
+  ["Train", "Technicians currently in training"],
+  ["Open", "Positions already posted"],
+  ["Reqs", "Recommended new requisitions to OPEN"],
+  ["Close", "Requisitions to CLOSE — over-resourced or soft demand"],
+];
 
 function Cell({ v, kind }: { v: any; kind?: string }) {
   if (kind === "rt") return <span className="tabular-nums text-ink-muted">{(v ?? 0).toFixed ? v.toFixed(2) : Number(v || 0).toFixed(2)}</span>;
@@ -38,12 +48,19 @@ function Sig({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 // Expanded per-area decision signals — the "is this really a hire, or pause/fix?" layer.
-function SignalDetail({ s }: { s: any }) {
+function SignalDetail({ r }: { r: any }) {
+  const s = r.signals;
   if (!s) return <div className="px-4 py-3 text-[12px] text-ink-faint">No signals for this area.</div>;
   const trendTone = s.forecast.trend === "Surge ahead" ? "text-amber-700" : s.forecast.trend === "Cooling" ? "text-blue-600" : "text-ink-muted";
   const riskDot = s.license_risk === "High" ? "bg-red-500" : s.license_risk === "Medium" ? "bg-amber-500" : "bg-emerald-500";
   return (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
+    <div>
+      {/* Why this priority — the reasoning behind the verdict */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-line-soft px-5 py-3">
+        <span className="text-[12.5px] font-semibold text-ink">{r.priority_reason}</span>
+        {(r.priority_factors || []).map((f: string, i: number) => <span key={i} className="chip">{f}</span>)}
+      </div>
+      <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
       <Sig label="Forward demand · 6 wk">
         <div className="flex items-baseline gap-1.5">
           <span className="text-[18px] font-semibold tabular-nums text-ink">{s.forecast.projected_vol}</span>
@@ -80,6 +97,7 @@ function SignalDetail({ s }: { s: any }) {
         <div className="text-[18px] font-semibold tabular-nums text-ink">{s.b2b_share}%</div>
         <div className="text-[11px] text-ink-faint">of total volume</div>
       </Sig>
+      </div>
     </div>
   );
 }
@@ -235,6 +253,20 @@ export default function ReqPlanner() {
           </div>
         );
       })() : (
+        <>
+        <details className="mb-3 rounded-xl border border-line bg-surface">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-[12.5px] font-medium text-ink-muted [&::-webkit-details-marker]:hidden">
+            <Info className="h-3.5 w-3.5 text-ink-faint" /> Column legend
+          </summary>
+          <div className="grid grid-cols-1 gap-x-8 gap-y-2.5 border-t border-line-soft px-4 py-3 sm:grid-cols-2 lg:grid-cols-3">
+            {LEGEND.map(([term, def]) => (
+              <div key={term} className="flex flex-col gap-0.5">
+                <span className="text-[11.5px] font-semibold text-ink">{term}</span>
+                <span className="text-[11.5px] leading-snug text-ink-faint">{def}</span>
+              </div>
+            ))}
+          </div>
+        </details>
         <div className="overflow-auto rounded-xl border border-line bg-surface shadow-card" style={{ maxHeight: "62vh" }}>
           <table className="w-full border-collapse text-[12.5px]">
             <thead className="sticky top-0 z-10">
@@ -275,7 +307,7 @@ export default function ReqPlanner() {
                     </tr>
                     {open && (
                       <tr className="border-b border-line">
-                        <td colSpan={colCount} className="bg-canvas p-0"><SignalDetail s={r.signals} /></td>
+                        <td colSpan={colCount} className="bg-canvas p-0"><SignalDetail r={r} /></td>
                       </tr>
                     )}
                   </React.Fragment>
@@ -284,6 +316,7 @@ export default function ReqPlanner() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

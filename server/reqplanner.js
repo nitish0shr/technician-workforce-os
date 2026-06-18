@@ -32,6 +32,26 @@ export function areaPriority(reqOpenSum, maxRT) {
   return "Limited";
 }
 
+/**
+ * Explain WHY an area landed at its priority — the transparency layer HirePower
+ * surfaces as "priority factors / model reasoning". Returns a one-line reason plus
+ * the discrete factors that drove it, so a planner can trust the verdict.
+ */
+export function priorityExplain(priority, openSum, maxRT, signals) {
+  const factors = [];
+  if (openSum > 0) factors.push(`${openSum} req${openSum > 1 ? "s" : ""} to open`);
+  if (maxRT > 12) factors.push(`run-time high (${(+maxRT).toFixed(1)})`);
+  else if (maxRT > 8) factors.push(`run-time elevated (${(+maxRT).toFixed(1)})`);
+  if (signals?.forecast?.trend === "Surge ahead") factors.push(`demand surging +${signals.forecast.pct}%`);
+  if (signals?.license_risk === "High") factors.push("HVAC licensing risk");
+  if (signals?.territory === "Rural") factors.push("rural territory — coverage constrained");
+  let reason;
+  if (priority === "Critical") reason = `Critical — ${factors.slice(0, 3).join(" · ") || "high hiring need"}`;
+  else if (priority === "Moderate") reason = `Moderate — ${factors.slice(0, 3).join(" · ") || "modest hiring need"}`;
+  else reason = signals?.forecast?.trend === "Cooling" ? "Limited — demand cooling, hold hiring" : "Limited — demand met by current capacity";
+  return { reason, factors };
+}
+
 /** Build the full Req Planner report from planning_areas + area_metrics rows. */
 export function reqPlannerReport(areas, metrics, today = new Date()) {
   const byArea = {};
@@ -53,10 +73,12 @@ export function reqPlannerReport(areas, metrics, today = new Date()) {
       totals[m.skill_family].open += c.reqs_to_open;
       totals[m.skill_family].close += c.reqs_to_close;
     }
+    const signals = areaSignals(a, ms, today);
+    const priority = areaPriority(openSum, maxRT);
+    const { reason, factors } = priorityExplain(priority, openSum, maxRT, signals);
     return {
       id: a.id, code: a.code, name: a.name, zip: a.zip, region: a.region, is_union_pr: a.is_union_pr,
-      priority: areaPriority(openSum, maxRT), reqs_open_total: openSum, byFamily,
-      signals: areaSignals(a, ms, today),
+      priority, priority_reason: reason, priority_factors: factors, reqs_open_total: openSum, byFamily, signals,
     };
   });
 
