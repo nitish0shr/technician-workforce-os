@@ -74,6 +74,27 @@ export function Delta({ value, suffix = "", goodWhenUp = true, className }: { va
   );
 }
 
+// Segmented distribution bar with legend — a portfolio "at a glance" mix.
+export function StackBar({ segments, height = 9, className }: { segments: { label: string; value: number; cls: string }[]; height?: number; className?: string }) {
+  const total = segments.reduce((s, x) => s + x.value, 0) || 1;
+  return (
+    <div className={className}>
+      <div className="flex gap-px overflow-hidden rounded-full bg-line-soft" style={{ height }}>
+        {segments.filter((s) => s.value > 0).map((s, i) => (
+          <div key={i} className={s.cls} style={{ width: `${(s.value / total) * 100}%` }} title={`${s.label}: ${s.value}`} />
+        ))}
+      </div>
+      <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1.5">
+        {segments.map((s, i) => (
+          <span key={i} className="inline-flex items-center gap-1.5 text-[11.5px] text-ink-muted">
+            <span className={cx("h-2 w-2 rounded-[3px]", s.cls)} /> {s.label} <span className="font-semibold tabular-nums text-ink">{s.value}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ScoreBar({ value, tone = "brand", className }: { value: number; tone?: string; className?: string }) {
   return (
     <div className={cx("h-1.5 w-full overflow-hidden rounded-full bg-line", className)}>

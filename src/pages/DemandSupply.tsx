@@ -4,7 +4,7 @@ import { TrendingUp, Scale, ArrowUpRight, ClipboardCopy, Boxes } from "lucide-re
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader, SectionCard } from "../components/page";
-import { Loading, ErrorState, DemandPill, Pill } from "../components/primitives";
+import { Loading, ErrorState, DemandPill, Pill, StackBar } from "../components/primitives";
 import { MarketDetail } from "../components/MarketDetail";
 import { toast } from "../components/toast";
 import { copyText, classNames as cx } from "../lib/format";
@@ -111,6 +111,20 @@ export default function DemandSupply() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Portfolio balance at a glance */}
+      <div className="mb-5 rounded-xl border border-line bg-surface px-4 py-3.5">
+        <div className="mb-2.5 flex items-center justify-between">
+          <span className="section-label">Balance state</span>
+          <span className="text-[11px] text-ink-faint">{t.understaffed + t.capacity_blocked + t.supply_met + t.demand_soft} markets</span>
+        </div>
+        <StackBar segments={[
+          { label: "Understaffed", value: t.understaffed, cls: "bg-blue-500" },
+          { label: "Capacity-blocked", value: t.capacity_blocked, cls: "bg-amber-500" },
+          { label: "Supply-met", value: t.supply_met, cls: "bg-emerald-500" },
+          { label: "Demand-soft", value: t.demand_soft, cls: "bg-zinc-300" },
+        ]} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

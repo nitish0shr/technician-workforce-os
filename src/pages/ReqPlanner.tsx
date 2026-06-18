@@ -3,7 +3,7 @@ import { LayoutGrid, Table2, Map, Search, AlertTriangle, ChevronRight, Info } fr
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader } from "../components/page";
-import { Loading, ErrorState, Pill } from "../components/primitives";
+import { Loading, ErrorState, Pill, StackBar } from "../components/primitives";
 import { classNames as cx } from "../lib/format";
 
 // Column set per skill family. T2 splits demand by channel (D2C / Other); the rest don't.
@@ -180,17 +180,32 @@ export default function ReqPlanner() {
         </div>
       </div>
 
-      {/* Forward signals — the pause/hold context the raw req counts don't show. */}
-      {st && (
-        <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-[12px] text-ink-muted">
-          <span className="section-label">Forward signals</span>
-          <span><span className="font-semibold tabular-nums text-ink">{st.surge_areas}</span> areas surging (6-wk)</span>
-          <span><span className="font-semibold tabular-nums text-ink">{st.effective_pipeline}</span> trainees expected to graduate</span>
-          <span><span className="font-semibold tabular-nums text-ink">{st.license_risk_areas}</span> HVAC licensing risk</span>
-          <span><span className="font-semibold tabular-nums text-ink">{st.rural_areas}</span> rural territories</span>
-          <span className="text-ink-faint">· click any row for area signals</span>
+      {/* Insight row — priority mix + forward signals, the context raw counts don't show. */}
+      <div className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="section-label">Priority mix</span>
+            <span className="text-[11px] text-ink-faint">{data.summary.areas} planning areas</span>
+          </div>
+          <StackBar segments={[
+            { label: "Critical", value: data.summary.critical, cls: "bg-red-500" },
+            { label: "Moderate", value: data.summary.moderate, cls: "bg-amber-500" },
+            { label: "Limited", value: data.summary.limited, cls: "bg-zinc-300" },
+          ]} />
         </div>
-      )}
+        {st && (
+          <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
+            <div className="mb-2.5 section-label">Forward signals</div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[12px] text-ink-muted">
+              <span><span className="font-semibold tabular-nums text-ink">{st.surge_areas}</span> surging (6-wk)</span>
+              <span><span className="font-semibold tabular-nums text-ink">{st.effective_pipeline}</span> trainees graduating</span>
+              <span><span className="font-semibold tabular-nums text-ink">{st.license_risk_areas}</span> licensing risk</span>
+              <span><span className="font-semibold tabular-nums text-ink">{st.rural_areas}</span> rural</span>
+              <span className="text-ink-faint">· click a row for area signals</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Skill-family tabs */}
       <div className="mb-3 inline-flex flex-wrap rounded-lg border border-line bg-canvas p-0.5">

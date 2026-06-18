@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Download, Upload, Sparkles, ArrowRight, Maximize2, Filter } from "lucide-react";
+import { Download, Upload, Sparkles, ArrowRight, Maximize2, Filter, Rocket, ShieldAlert, Gauge, Activity } from "lucide-react";
 import { api, downloadUrl } from "../lib/api";
 import { useAsync } from "../lib/hooks";
-import { PageHeader } from "../components/page";
+import { PageHeader, StatCard } from "../components/page";
 import { DataTable, Col } from "../components/DataTable";
 import { Disclosure, Modal, Field } from "../components/overlays";
 import {
@@ -45,6 +45,11 @@ export default function MarketReadiness() {
   if (loading) return <Loading label="Loading markets" />;
   if (error || !data) return <ErrorState message={error || "No data"} retry={reload} />;
 
+  const readyCount = data.filter((m) => m.rec.readiness_status === "Ready to Hire").length;
+  const atRiskCount = data.filter((m) => m.rec.readiness_status === "At Risk" || m.rec.risk_level === "Critical").length;
+  const avgReadiness = Math.round(data.reduce((s, m) => s + m.rec.market_readiness_score, 0) / (data.length || 1));
+  const avgRisk = Math.round(data.reduce((s, m) => s + m.rec.risk_score, 0) / (data.length || 1));
+
   const columns: Col<Market>[] = [
     { id: "market", header: "Market", accessor: (m) => m.market, cell: (m) => (
       <div className="min-w-0"><div className="truncate font-medium text-ink">{m.market}</div><div className="truncate text-[11px] text-ink-faint">{m.region}</div></div>
@@ -76,6 +81,14 @@ export default function MarketReadiness() {
           </>
         }
       />
+
+      {/* Portfolio summary */}
+      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label="Ready to hire" value={readyCount} tone="emerald" icon={<Rocket className="h-4 w-4" />} hint="demand outpaces supply" onClick={() => setStatusFilter(["Ready to Hire"])} />
+        <StatCard label="At risk" value={atRiskCount} tone="rose" icon={<ShieldAlert className="h-4 w-4" />} hint="needs a decision" onClick={() => setStatusFilter(["At Risk"])} />
+        <StatCard label="Avg readiness" value={avgReadiness} tone="sky" icon={<Gauge className="h-4 w-4" />} hint="portfolio score" />
+        <StatCard label="Avg risk" value={avgRisk} tone="amber" icon={<Activity className="h-4 w-4" />} hint="portfolio score" />
+      </div>
 
       {/* Filter bar */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
