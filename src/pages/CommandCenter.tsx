@@ -42,7 +42,7 @@ export default function CommandCenter() {
 
       {/* Today's Workforce Signal */}
       <div className="card-raised relative mb-4 overflow-hidden p-5">
-        <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand-soft to-brand-dim" />
+        <div className="absolute inset-y-0 left-0 w-1 bg-brand" />
         <div className="flex items-start gap-3 pl-2">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-brand/30 bg-brand/10">
             <Sparkles className="h-5 w-5 text-brand-soft" />

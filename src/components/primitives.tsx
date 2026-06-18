@@ -37,24 +37,24 @@ const TONE: Record<string, string> = {
   rose: "bg-rose-400",
   sky: "bg-sky-400",
   violet: "bg-violet-400",
-  indigo: "bg-indigo-400",
+  brand: "bg-brand",
   slate: "bg-slate-400",
 };
 
-export function ScoreBar({ value, tone = "indigo", className }: { value: number; tone?: string; className?: string }) {
+export function ScoreBar({ value, tone = "brand", className }: { value: number; tone?: string; className?: string }) {
   return (
     <div className={cx("h-1.5 w-full overflow-hidden rounded-full bg-line", className)}>
-      <div className={cx("h-full rounded-full transition-all", TONE[tone] || TONE.indigo)} style={{ width: `${Math.max(2, Math.min(100, value))}%` }} />
+      <div className={cx("h-full rounded-full transition-all", TONE[tone] || TONE.brand)} style={{ width: `${Math.max(2, Math.min(100, value))}%` }} />
     </div>
   );
 }
 
-export function ScoreRing({ value, size = 44, tone = "indigo", label }: { value: number; size?: number; tone?: string; label?: string }) {
+export function ScoreRing({ value, size = 44, tone = "brand", label }: { value: number; size?: number; tone?: string; label?: string }) {
   const stroke = 4;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const off = c - (Math.max(0, Math.min(100, value)) / 100) * c;
-  const color = tone === "emerald" ? "#10b981" : tone === "amber" ? "#f59e0b" : tone === "rose" ? "#f43f5e" : tone === "violet" ? "#8b5cf6" : "#6366f1";
+  const color = tone === "emerald" ? "#10b981" : tone === "amber" ? "#f59e0b" : tone === "rose" ? "#f43f5e" : tone === "violet" ? "#8b5cf6" : "#2d5be8";
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">

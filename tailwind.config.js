@@ -25,28 +25,33 @@ export default {
         ],
       },
       colors: {
-        // Light, soft-neutral premium SaaS palette. Cards are white and pop off a
-        // gentle gray canvas via subtle shadows + hairline borders.
-        canvas: "#f6f7f9",
+        // Restrained monochrome system. A near-white canvas, true-neutral grays, and
+        // a single accent reserved for active state / focus. Depth comes from 1px
+        // hairlines, not shadows. Primary actions are near-black ink, not the accent —
+        // the deliberate move that separates this from generic "indigo SaaS" templates.
+        canvas: "#f7f8f8",
         surface: {
           DEFAULT: "#ffffff",
           raised: "#ffffff",
-          hover: "#f1f3f6",
+          hover: "#f3f4f5",
         },
         line: {
-          DEFAULT: "#e4e7ec",
-          soft: "#eef1f4",
+          DEFAULT: "#e6e8ea",
+          soft: "#eef0f1",
+          strong: "#d6d9dc",
         },
         ink: {
-          DEFAULT: "#15181f",
-          strong: "#3f4654",
-          muted: "#5a6473",
-          faint: "#98a0ad",
+          DEFAULT: "#16181c",
+          strong: "#3a3f47",
+          muted: "#5c636d",
+          faint: "#969ca5",
         },
+        // Single accent — a deep, slightly cool blue. Used for selection, active tabs,
+        // focus rings and key emphasis only; never as decorative fill.
         brand: {
-          DEFAULT: "#4f46e5",
-          soft: "#6366f1",
-          dim: "#4f46e5",
+          DEFAULT: "#2d5be8",
+          soft: "#4a73ee",
+          dim: "#1f47c2",
         },
         ok: "#059669",
         warn: "#d97706",
@@ -55,10 +60,11 @@ export default {
         info: "#2563eb",
       },
       boxShadow: {
-        drawer: "-24px 0 60px -20px rgba(16,24,40,0.18)",
-        card: "0 1px 2px 0 rgba(16,24,40,0.04), 0 1px 3px 0 rgba(16,24,40,0.06)",
-        cardLg: "0 4px 12px -2px rgba(16,24,40,0.10), 0 2px 6px -2px rgba(16,24,40,0.06)",
-        pop: "0 12px 40px -12px rgba(16,24,40,0.22)",
+        // Nearly invisible, highly diffused — depth is implied, never announced.
+        drawer: "-24px 0 60px -24px rgba(16,24,40,0.16)",
+        card: "0 1px 2px 0 rgba(16,24,40,0.04)",
+        cardLg: "0 8px 24px -12px rgba(16,24,40,0.10)",
+        pop: "0 16px 48px -16px rgba(16,24,40,0.20)",
       },
       keyframes: {
         "fade-in": {

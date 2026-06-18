@@ -9,8 +9,8 @@ import type { Market } from "../lib/types";
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
   cx(
-    "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45",
-    isActive ? "bg-surface-hover text-ink shadow-card" : "text-ink-muted hover:bg-surface-hover/60 hover:text-ink"
+    "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45",
+    isActive ? "bg-surface-hover text-ink" : "text-ink-muted hover:bg-surface-hover/60 hover:text-ink"
   );
 
 export function TopNav({ markets }: { markets: Market[] }) {
@@ -57,8 +57,8 @@ export function TopNav({ markets }: { markets: Market[] }) {
       <div className="mx-auto flex h-[56px] w-full max-w-[1480px] items-center gap-3 px-4 sm:px-6">
         {/* Logo */}
         <NavLink to="/" className="flex shrink-0 items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-[linear-gradient(135deg,#6366F1,#4F46E5_55%,#7A5AF8)] shadow-[0_6px_16px_rgba(79,70,229,.35),inset_0_1px_0_rgba(255,255,255,.25)]">
-            <svg width="17" height="17" viewBox="0 0 32 32"><path d="M9 22V12M16 22V8M23 22v-7" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" /><circle cx="9" cy="12" r="2.2" fill="#a5b4fc" /><circle cx="16" cy="8" r="2.2" fill="#fff" /><circle cx="23" cy="15" r="2.2" fill="#fcd34d" /></svg>
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-ink">
+            <svg width="17" height="17" viewBox="0 0 32 32"><path d="M9 22V12M16 22V8M23 22v-7" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" /><circle cx="9" cy="12" r="2.2" fill="#fff" fillOpacity="0.5" /><circle cx="16" cy="8" r="2.2" fill="#fff" /><circle cx="23" cy="15" r="2.2" fill="#4a73ee" /></svg>
           </div>
           <span className="hidden text-[14px] font-semibold tracking-tight text-ink md:inline">Workforce OS</span>
         </NavLink>

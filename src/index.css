@@ -14,30 +14,28 @@ body,
 
 body {
   margin: 0;
-  background: #f6f7f9;
-  color: #1a1f29;
-  font-feature-settings: "cv05" 1, "ss01" 1;
+  background: #f7f8f8;
+  color: #16181c;
+  font-feature-settings: "cv05" 1, "ss01" 1, "tnum" 1;
   letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* App canvas with the redesign's soft radial tint at the top-right. */
+/* Flat, monochrome canvas — no colored gradient. Depth is carried by hairlines. */
 .app-bg {
-  background-color: #f6f7f9;
-  background-image: radial-gradient(1200px 600px at 80% -10%, #eef1ff 0%, rgba(238, 241, 255, 0) 60%);
-  background-attachment: fixed;
+  background-color: #f7f8f8;
 }
 
 * {
-  border-color: #e4e7ec;
+  border-color: #e6e8ea;
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.18);
+  background: rgba(45, 91, 232, 0.14);
 }
 
-/* Scrollbars */
+/* Scrollbars — thin, neutral, recede until hovered. */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -46,12 +44,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d9e0;
+  background: #d8dbdf;
   border-radius: 8px;
-  border: 2px solid #f6f7f9;
+  border: 2px solid #f7f8f8;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #c0c7d1;
+  background: #c3c8ce;
 }
 
 @layer components {
@@ -71,13 +69,13 @@ body {
     @apply text-ink-faint;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-surface-raised px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface-hover hover:border-line disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/55 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium text-ink-strong transition-colors duration-150 ease-out hover:bg-surface-hover hover:text-ink disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/55 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-dim bg-brand-dim/90 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-dim disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-ink px-3 py-1.5 text-[13px] font-medium text-white transition-colors duration-150 ease-out hover:bg-ink-strong disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/55 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-ink-muted transition-colors hover:bg-surface-hover hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-ink-muted transition-colors duration-150 ease-out hover:bg-surface-hover hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas;
   }
   .focusable {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-inset;

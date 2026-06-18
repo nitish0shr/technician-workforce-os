@@ -85,9 +85,9 @@ export default function DemandSupply() {
       {/* Hero: the two sides of the balance */}
       <div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="card-raised relative overflow-hidden p-5">
-          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-brand-soft to-brand-dim" />
+          <div className="absolute inset-y-0 left-0 w-1 bg-brand" />
           <div className="flex items-start gap-3 pl-2">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-indigo-50 text-brand"><TrendingUp className="h-4 w-4" /></div>
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand"><TrendingUp className="h-4 w-4" /></div>
             <div className="min-w-0">
               <div className="section-label">Demand outpacing supply</div>
               <div className="mt-1 text-[30px] font-bold leading-none tabular-nums tracking-[-0.02em] text-ink">{demandLed}</div>
@@ -99,7 +99,7 @@ export default function DemandSupply() {
         </div>
 
         <div className="card-raised relative overflow-hidden p-5">
-          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-emerald-400 to-emerald-600" />
+          <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500" />
           <div className="flex items-start gap-3 pl-2">
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600"><Scale className="h-4 w-4" /></div>
             <div className="min-w-0">

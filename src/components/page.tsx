@@ -1,12 +1,13 @@
 import React from "react";
 import { classNames as cx } from "../lib/format";
 
-export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: React.ReactNode }) {
+export function PageHeader({ title, description, actions, eyebrow }: { title: string; description?: string; actions?: React.ReactNode; eyebrow?: string }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h2 className="text-[23px] font-bold tracking-[-0.022em] text-ink">{title}</h2>
-        {description && <p className="mt-1 max-w-2xl text-[13.5px] text-ink-muted">{description}</p>}
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        {eyebrow && <div className="mb-2 section-label">{eyebrow}</div>}
+        <h2 className="text-[27px] font-bold leading-[1.04] tracking-[-0.03em] text-ink">{title}</h2>
+        {description && <p className="mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-ink-muted">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -31,29 +32,30 @@ export function SectionCard({ title, icon, action, children, className, pad = tr
 }
 
 export function StatCard({ label, value, hint, icon, tone = "ink", onClick, active }: { label: string; value: React.ReactNode; hint?: React.ReactNode; icon?: React.ReactNode; tone?: string; onClick?: () => void; active?: boolean }) {
-  // Calm, premium KPI card: a tinted icon box carries the color; the value stays dark.
-  const tintMap: Record<string, string> = {
-    ink: "bg-slate-100 text-slate-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    amber: "bg-amber-50 text-amber-600",
-    rose: "bg-rose-50 text-rose-600",
-    sky: "bg-sky-50 text-sky-600",
-    violet: "bg-violet-50 text-violet-600",
+  // Editorial KPI tile: hairline frame, the number does the talking. The icon is a
+  // quiet monochrome glyph (tone only nudges it) — no filled color boxes.
+  const accent: Record<string, string> = {
+    ink: "text-ink-faint",
+    emerald: "text-emerald-600",
+    amber: "text-amber-600",
+    rose: "text-rose-600",
+    sky: "text-sky-600",
+    violet: "text-violet-600",
   };
   return (
     <button
       onClick={onClick}
       className={cx(
-        "card group flex flex-col gap-2.5 p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-        onClick && "cursor-pointer hover:-translate-y-0.5 hover:border-line hover:bg-surface-hover hover:shadow-cardLg",
-        active && "ring-1 ring-brand/40"
+        "group flex flex-col gap-3 rounded-xl border bg-surface p-4 text-left transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+        active ? "border-brand/40 bg-brand/[0.03]" : "border-line",
+        onClick && "cursor-pointer hover:border-line-strong hover:bg-surface-hover"
       )}
     >
-      <div className="flex items-center gap-2.5">
-        <span className={cx("grid h-8 w-8 shrink-0 place-items-center rounded-lg", tintMap[tone] || tintMap.ink)}>{icon}</span>
+      <div className="flex items-center justify-between gap-2">
         <span className="section-label">{label}</span>
+        {icon && <span className={cx("shrink-0 [&>svg]:h-4 [&>svg]:w-4", accent[tone] || accent.ink)}>{icon}</span>}
       </div>
-      <div className="text-[30px] font-bold leading-none tracking-[-0.02em] tabular-nums text-ink">{value}</div>
+      <div className="text-[32px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">{value}</div>
       {hint && <div className="text-[11.5px] text-ink-faint">{hint}</div>}
     </button>
   );
