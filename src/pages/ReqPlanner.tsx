@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { LayoutGrid, Table2, Map, Search, AlertTriangle } from "lucide-react";
+import { LayoutGrid, Table2, Map, Search, AlertTriangle, ChevronRight } from "lucide-react";
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader } from "../components/page";
@@ -32,12 +32,65 @@ function Cell({ v, kind }: { v: any; kind?: string }) {
   return <span className="tabular-nums text-ink">{v ?? 0}</span>;
 }
 
+// One labelled signal cell inside the expanded area detail.
+function Sig({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div className="min-w-0"><div className="mb-1 section-label">{label}</div>{children}</div>;
+}
+
+// Expanded per-area decision signals — the "is this really a hire, or pause/fix?" layer.
+function SignalDetail({ s }: { s: any }) {
+  if (!s) return <div className="px-4 py-3 text-[12px] text-ink-faint">No signals for this area.</div>;
+  const trendTone = s.forecast.trend === "Surge ahead" ? "text-amber-700" : s.forecast.trend === "Cooling" ? "text-blue-600" : "text-ink-muted";
+  const riskDot = s.license_risk === "High" ? "bg-red-500" : s.license_risk === "Medium" ? "bg-amber-500" : "bg-emerald-500";
+  return (
+    <div className="grid grid-cols-2 gap-x-8 gap-y-4 px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
+      <Sig label="Forward demand · 6 wk">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[18px] font-semibold tabular-nums text-ink">{s.forecast.projected_vol}</span>
+          <span className={cx("text-[11.5px] font-medium", trendTone)}>{s.forecast.pct >= 0 ? `+${s.forecast.pct}` : s.forecast.pct}%</span>
+        </div>
+        <div className="text-[11px] text-ink-faint">{s.forecast.trend} · now {s.forecast.current_vol}</div>
+      </Sig>
+      <Sig label="Trainee yield">
+        {s.trainees > 0 ? (
+          <>
+            <div className="text-[18px] font-semibold tabular-nums text-ink">{s.effective_pipeline}<span className="text-[12px] font-normal text-ink-faint"> of {s.trainees}</span></div>
+            <div className="text-[11px] text-ink-faint">{Math.round(s.grad_rate * 100)}% grad · ready ~{s.trainee_eta_weeks} wk</div>
+          </>
+        ) : <div className="text-[14px] text-ink-faint">No trainees</div>}
+      </Sig>
+      <Sig label="Run-time vs LY">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[18px] font-semibold tabular-nums text-ink">{s.yoy.rt_now}</span>
+          <span className={cx("text-[11.5px] font-medium", s.yoy.dir === "up" ? "text-red-600" : s.yoy.dir === "down" ? "text-emerald-600" : "text-ink-muted")}>{s.yoy.dir === "up" ? "▲" : s.yoy.dir === "down" ? "▼" : "–"} {s.yoy.rt_ly}</span>
+        </div>
+        <div className="text-[11px] text-ink-faint">vs last year</div>
+      </Sig>
+      <Sig label="Territory">
+        <div className="text-[15px] font-medium text-ink">{s.territory}</div>
+        <div className="text-[11px] text-ink-faint">service density</div>
+      </Sig>
+      <Sig label="Licensing risk">
+        {s.license_risk ? (
+          <div className="inline-flex items-center gap-1.5"><span className={cx("h-1.5 w-1.5 rounded-full", riskDot)} /><span className="text-[15px] font-medium text-ink">{s.license_risk}</span></div>
+        ) : <div className="text-[14px] text-ink-faint">n/a</div>}
+        <div className="text-[11px] text-ink-faint">HVAC deployability</div>
+      </Sig>
+      <Sig label="B2B / Other share">
+        <div className="text-[18px] font-semibold tabular-nums text-ink">{s.b2b_share}%</div>
+        <div className="text-[11px] text-ink-faint">of total volume</div>
+      </Sig>
+    </div>
+  );
+}
+
 export default function ReqPlanner() {
   const { data, loading, error, reload } = useAsync<any>(() => api.reqPlanner(), []);
   const [q, setQ] = useState("");
   const [excludeUnion, setExcludeUnion] = useState(true);
   const [view, setView] = useState<"table" | "map">("table");
   const [family, setFamily] = useState<string>("All");
+  const [openRow, setOpenRow] = useState<number | null>(null);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -58,7 +111,9 @@ export default function ReqPlanner() {
 
   const families: string[] = data.families;
   const shownFamilies = family === "All" ? families : [family];
+  const colCount = 4 + shownFamilies.reduce((s: number, fam: string) => s + colsFor(fam).length, 0);
   const needReqs = rows.filter((r: any) => r.reqs_open_total > 0).length;
+  const st = data.signal_totals;
 
   return (
     <div>
@@ -106,6 +161,18 @@ export default function ReqPlanner() {
           <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /><span className="text-[17px] font-semibold tabular-nums text-ink">{data.summary.moderate}</span><span className="text-[11px] text-ink-faint">moderate</span></div>
         </div>
       </div>
+
+      {/* Forward signals — the pause/hold context the raw req counts don't show. */}
+      {st && (
+        <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-[12px] text-ink-muted">
+          <span className="section-label">Forward signals</span>
+          <span><span className="font-semibold tabular-nums text-ink">{st.surge_areas}</span> areas surging (6-wk)</span>
+          <span><span className="font-semibold tabular-nums text-ink">{st.effective_pipeline}</span> trainees expected to graduate</span>
+          <span><span className="font-semibold tabular-nums text-ink">{st.license_risk_areas}</span> HVAC licensing risk</span>
+          <span><span className="font-semibold tabular-nums text-ink">{st.rural_areas}</span> rural territories</span>
+          <span className="text-ink-faint">· click any row for area signals</span>
+        </div>
+      )}
 
       {/* Skill-family tabs */}
       <div className="mb-3 inline-flex flex-wrap rounded-lg border border-line bg-canvas p-0.5">
@@ -186,22 +253,34 @@ export default function ReqPlanner() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r: any) => (
-                <tr key={r.id} className="border-b border-line-soft last:border-0 row-hover">
-                  <td className="sticky left-0 bg-surface px-3 py-2 font-mono text-[11.5px] text-ink-muted">{r.code}</td>
-                  <td className="bg-surface px-3 py-2"><div className="font-medium text-ink">{r.name}</div><div className="text-[10.5px] text-ink-faint">{r.region}{r.is_union_pr ? " · Union/PR" : ""}</div></td>
-                  <td className="bg-surface px-3 py-2 tabular-nums text-ink-muted">{r.zip}</td>
-                  <td className="bg-surface px-3 py-2"><Pill dot={PRIORITY_DOT[r.priority]}>{r.priority}</Pill></td>
-                  {shownFamilies.flatMap((fam) => colsFor(fam).map((c, i) => {
-                    const fm = r.byFamily[fam];
-                    return (
-                      <td key={fam + c.key} className={cx("px-3 py-2 text-right", i === 0 && "border-l border-line-soft")}>
-                        {fm ? <Cell v={fm[c.key]} kind={c.kind} /> : <span className="text-ink-faint">–</span>}
+              {rows.map((r: any) => {
+                const open = openRow === r.id;
+                return (
+                  <React.Fragment key={r.id}>
+                    <tr onClick={() => setOpenRow(open ? null : r.id)} className={cx("cursor-pointer border-b border-line-soft row-hover", open && "bg-surface-hover/60")}>
+                      <td className={cx("sticky left-0 px-3 py-2 font-mono text-[11.5px] text-ink-muted", open ? "bg-surface-hover" : "bg-surface")}>
+                        <span className="inline-flex items-center gap-1.5"><ChevronRight className={cx("h-3.5 w-3.5 text-ink-faint transition-transform", open && "rotate-90")} />{r.code}</span>
                       </td>
-                    );
-                  }))}
-                </tr>
-              ))}
+                      <td className={cx("px-3 py-2", open ? "bg-surface-hover" : "bg-surface")}><div className="font-medium text-ink">{r.name}</div><div className="text-[10.5px] text-ink-faint">{r.region}{r.is_union_pr ? " · Union/PR" : ""}</div></td>
+                      <td className={cx("px-3 py-2 tabular-nums text-ink-muted", open ? "bg-surface-hover" : "bg-surface")}>{r.zip}</td>
+                      <td className={cx("px-3 py-2", open ? "bg-surface-hover" : "bg-surface")}><Pill dot={PRIORITY_DOT[r.priority]}>{r.priority}</Pill></td>
+                      {shownFamilies.flatMap((fam) => colsFor(fam).map((c, i) => {
+                        const fm = r.byFamily[fam];
+                        return (
+                          <td key={fam + c.key} className={cx("px-3 py-2 text-right", i === 0 && "border-l border-line-soft")}>
+                            {fm ? <Cell v={fm[c.key]} kind={c.kind} /> : <span className="text-ink-faint">–</span>}
+                          </td>
+                        );
+                      }))}
+                    </tr>
+                    {open && (
+                      <tr className="border-b border-line">
+                        <td colSpan={colCount} className="bg-canvas p-0"><SignalDetail s={r.signals} /></td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>

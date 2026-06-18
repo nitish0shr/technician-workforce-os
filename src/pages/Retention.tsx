@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, TrendingDown, UserMinus, Sprout, MapPin, AlertTriangle, MessageSquareWarning, Layers, Workflow } from "lucide-react";
+import { Users, TrendingDown, UserMinus, Sprout, MapPin, AlertTriangle, MessageSquareWarning, Layers, Workflow, Clock, LineChart } from "lucide-react";
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader, SectionCard, StatCard } from "../components/page";
@@ -29,6 +29,11 @@ export default function Retention() {
       ),
     },
     { id: "early_attrition", header: "Early exits", align: "right", accessor: (m) => m.early_attrition, cell: (m) => <span className="tabular-nums text-ink-muted">{m.early_attrition}</span> },
+    { id: "avg_tenure", header: "Avg tenure", align: "right", accessor: (m) => m.avg_tenure_days, cell: (m) => <span className="tabular-nums text-ink-muted">{Math.round((m.avg_tenure_days || 0) / 30)} mo</span> },
+    {
+      id: "headcount_trend", header: "90d Δ", align: "right", accessor: (m) => m.headcount_trend,
+      cell: (m) => <span className={cx("tabular-nums font-medium", m.headcount_trend > 0 ? "text-emerald-600" : m.headcount_trend < 0 ? "text-rose-600" : "text-ink-muted")}>{m.headcount_trend > 0 ? `+${m.headcount_trend}` : m.headcount_trend}</span>,
+    },
   ];
 
   return (
@@ -38,8 +43,14 @@ export default function Retention() {
         description="Where and why technicians are leaving — and where high attrition collides with high demand. Hiring alone won't fix a retention problem."
       />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard label="Active technicians" value={data.active} tone="ink" icon={<Users className="h-4 w-4" />} />
+        <StatCard label="Avg tenure" value={`${Math.round((data.avg_tenure_days || 0) / 30)} mo`} tone="sky" icon={<Clock className="h-4 w-4" />} hint="active workforce" />
+        <StatCard
+          label="90-day headcount Δ"
+          value={<span className={data.headcount_trend >= 0 ? "text-emerald-600" : "text-rose-600"}>{data.headcount_trend >= 0 ? `+${data.headcount_trend}` : data.headcount_trend}</span>}
+          tone={data.headcount_trend >= 0 ? "emerald" : "rose"} icon={<LineChart className="h-4 w-4" />} hint="net active, last 90d"
+        />
         <StatCard label="90-day attrition" value={`${data.attrition_rate}%`} tone="rose" icon={<TrendingDown className="h-4 w-4" />} />
         <StatCard label="Early exits ≤90d" value={data.early.d90} tone="amber" icon={<UserMinus className="h-4 w-4" />} />
         <StatCard label="Green-tech share" value={`${data.greenShare}%`} tone="sky" icon={<Sprout className="h-4 w-4" />} />

@@ -17,6 +17,17 @@ function tally(arr) {
   return Object.entries(m).map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count);
 }
 
+// Headcount active as of a point in time, from real start/exit dates.
+function activeAsOf(list, when) {
+  return list.filter((t) => {
+    const s = new Date(t.start_date);
+    if (isNaN(s.getTime()) || s > when) return false;
+    if (!t.exit_date) return true;
+    const e = new Date(t.exit_date);
+    return isNaN(e.getTime()) || e > when;
+  }).length;
+}
+
 /** Technician retention / attrition summary. */
 export function retentionSummary(technicians, today = new Date()) {
   const active = technicians.filter((t) => !t.exit_date);
@@ -30,17 +41,31 @@ export function retentionSummary(technicians, today = new Date()) {
   const headcount = active.length + recentExits.length;
   const attritionRate = headcount ? Math.round((recentExits.length / headcount) * 100) : 0;
 
+  // #5 — average tenure of the ACTIVE workforce (months). A green bench reschedules
+  // and cancels more for skill reasons, not headcount ones.
+  const avgTenureDays = active.length ? Math.round(active.reduce((s, t) => s + tenure(t), 0) / active.length) : 0;
+  // #15 — net headcount trajectory over the last 90 days (real start/exit dates).
+  const ago = new Date(today); ago.setDate(ago.getDate() - 90);
+  const headcountTrend = active.length - activeAsOf(technicians, ago);
+
   const markets = [...new Set(technicians.map((t) => t.market))];
   const byMarket = markets.map((mk) => {
+    const inMk = technicians.filter((t) => t.market === mk);
     const a = active.filter((t) => t.market === mk).length;
     const ex = recentExits.filter((t) => t.market === mk).length;
     const hc = a + ex;
     const earlyEx = exited.filter((t) => t.market === mk && tenure(t) <= 90 && (daysSince(t.exit_date, today) ?? 999) <= 180).length;
-    return { market: mk, active: a, exits_90d: ex, attrition_rate: hc ? Math.round((ex / hc) * 100) : 0, early_attrition: earlyEx };
+    const activeMk = active.filter((t) => t.market === mk);
+    const avgTenure = activeMk.length ? Math.round(activeMk.reduce((s, t) => s + tenure(t), 0) / activeMk.length) : 0;
+    return {
+      market: mk, active: a, exits_90d: ex, attrition_rate: hc ? Math.round((ex / hc) * 100) : 0,
+      early_attrition: earlyEx, avg_tenure_days: avgTenure, headcount_trend: a - activeAsOf(inMk, ago),
+    };
   }).sort((x, y) => y.attrition_rate - x.attrition_rate || y.exits_90d - x.exits_90d);
 
   return {
     active: active.length, exited_90d: recentExits.length, attrition_rate: attritionRate,
+    avg_tenure_days: avgTenureDays, headcount_trend: headcountTrend,
     early, byReason: tally(exited.map((t) => t.exit_reason || "Unknown")),
     byType: tally(exited.map((t) => t.exit_type || "Unknown")),
     bySource: tally(exited.map((t) => t.hire_source || "Unknown")),

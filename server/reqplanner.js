@@ -8,6 +8,8 @@
  * d2c_vol, other_vol (job volume by channel), in_training, open_positions.
  */
 
+import { areaSignals, signalTotals } from "./areaSignals.js";
+
 export const VOL_PER_TECH = 70; // job volume one tech absorbs per planning period
 
 export function computeAreaReq(m) {
@@ -31,7 +33,7 @@ export function areaPriority(reqOpenSum, maxRT) {
 }
 
 /** Build the full Req Planner report from planning_areas + area_metrics rows. */
-export function reqPlannerReport(areas, metrics) {
+export function reqPlannerReport(areas, metrics, today = new Date()) {
   const byArea = {};
   for (const m of metrics) (byArea[m.area_id] = byArea[m.area_id] || []).push(m);
   const families = [...new Set(metrics.map((m) => m.skill_family))];
@@ -54,6 +56,7 @@ export function reqPlannerReport(areas, metrics) {
     return {
       id: a.id, code: a.code, name: a.name, zip: a.zip, region: a.region, is_union_pr: a.is_union_pr,
       priority: areaPriority(openSum, maxRT), reqs_open_total: openSum, byFamily,
+      signals: areaSignals(a, ms, today),
     };
   });
 
@@ -67,5 +70,5 @@ export function reqPlannerReport(areas, metrics) {
     limited: rows.filter((r) => r.priority === "Limited").length,
     union_pr: rows.filter((r) => r.is_union_pr).length,
   };
-  return { families, totals, total_to_open, total_to_close, summary, rows };
+  return { families, totals, total_to_open, total_to_close, summary, rows, signal_totals: signalTotals(rows) };
 }
