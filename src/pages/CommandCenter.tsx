@@ -8,7 +8,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { api } from "../lib/api";
 import { useAsync } from "../lib/hooks";
 import { PageHeader, SectionCard, StatCard, Owner } from "../components/page";
-import { StatusPill, RiskPill, ModePill, ScoreBar, Loading, ErrorState, GoLivePill } from "../components/primitives";
+import { StatusPill, RiskPill, ModePill, ScoreBar, Loading, ErrorState, GoLivePill, Delta, Sparkline } from "../components/primitives";
 import { Timeline } from "../components/Timeline";
 import { MarketDetail } from "../components/MarketDetail";
 import { toast } from "../components/toast";
@@ -40,20 +40,35 @@ export default function CommandCenter() {
         }
       />
 
-      {/* Today's Workforce Signal */}
-      <div className="card-raised relative mb-4 overflow-hidden p-5">
+      {/* Today's Workforce Signal — product header band: insight left, live trend right */}
+      <div className="card-raised relative mb-4 overflow-hidden">
         <div className="absolute inset-y-0 left-0 w-1 bg-brand" />
-        <div className="flex items-start gap-3 pl-2">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-brand/30 bg-brand/10">
-            <Sparkles className="h-5 w-5 text-brand-soft" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-center gap-2">
-              <span className="section-label">Today's workforce signal</span>
-              <span className="text-[11px] text-ink-faint">· generated {relTime(data.generated_at)}</span>
+        <div className="flex flex-col gap-5 p-5 pl-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-brand/30 bg-brand/10">
+              <Sparkles className="h-5 w-5 text-brand-soft" />
             </div>
-            <p className="text-[16px] font-medium leading-relaxed text-ink">{data.signal}</p>
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="section-label">Today's workforce signal</span>
+                <span className="text-[11px] text-ink-faint">· generated {relTime(data.generated_at)}</span>
+              </div>
+              <p className="max-w-2xl text-[16px] font-medium leading-relaxed text-ink">{data.signal}</p>
+            </div>
           </div>
+          {data.workforce && (
+            <div className="flex shrink-0 items-center gap-5 border-t border-line-soft pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+              <div>
+                <div className="section-label">Active workforce</div>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-[28px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">{data.workforce.active}</span>
+                  <Delta value={data.workforce.trend} />
+                </div>
+                <div className="mt-1 text-[11px] text-ink-faint">techs · {data.workforce.attrition}% attrition</div>
+              </div>
+              <Sparkline data={data.workforce.series} width={120} height={40} className="hidden sm:block" />
+            </div>
+          )}
         </div>
       </div>
 

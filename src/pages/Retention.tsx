@@ -44,7 +44,7 @@ export default function Retention() {
       />
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <StatCard label="Active technicians" value={data.active} tone="ink" icon={<Users className="h-4 w-4" />} />
+        <StatCard label="Active technicians" value={data.active} tone="ink" icon={<Users className="h-4 w-4" />} spark={data.headcount_series} delta={data.headcount_trend} hint="vs 90 days ago" />
         <StatCard label="Avg tenure" value={`${Math.round((data.avg_tenure_days || 0) / 30)} mo`} tone="sky" icon={<Clock className="h-4 w-4" />} hint="active workforce" />
         <StatCard
           label="90-day headcount Δ"

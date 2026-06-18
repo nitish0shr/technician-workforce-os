@@ -41,6 +41,39 @@ const TONE: Record<string, string> = {
   slate: "bg-slate-400",
 };
 
+// Compact inline trend line (area + stroke), single accent. The signature element
+// that turns a flat number into a "this is a real product" metric.
+export function Sparkline({ data, width = 104, height = 30, className, strokeClass = "stroke-brand", fillClass = "fill-brand/10" }: { data: number[]; width?: number; height?: number; className?: string; strokeClass?: string; fillClass?: string }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data), max = Math.max(...data);
+  const span = max - min || 1;
+  const stepX = width / (data.length - 1);
+  const y = (v: number) => height - 2 - ((v - min) / span) * (height - 5);
+  const pts = data.map((v, i) => [i * stepX, y(v)] as const);
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  const area = `${line} L${width.toFixed(1)},${height} L0,${height} Z`;
+  const last = pts[pts.length - 1];
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={className} preserveAspectRatio="none" aria-hidden>
+      <path d={area} className={fillClass} stroke="none" />
+      <path d={line} className={strokeClass} fill="none" strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <circle cx={last[0]} cy={last[1]} r={1.8} className={strokeClass.replace("stroke", "fill")} />
+    </svg>
+  );
+}
+
+// Signed trend badge — ▲/▼ with tone. Up isn't always good, so callers pass `goodWhenUp`.
+export function Delta({ value, suffix = "", goodWhenUp = true, className }: { value: number; suffix?: string; goodWhenUp?: boolean; className?: string }) {
+  if (value === 0) return <span className={cx("inline-flex items-center gap-0.5 text-[11.5px] font-medium text-ink-faint", className)}>± 0{suffix}</span>;
+  const up = value > 0;
+  const good = up === goodWhenUp;
+  return (
+    <span className={cx("inline-flex items-center gap-0.5 text-[11.5px] font-medium tabular-nums", good ? "text-emerald-600" : "text-rose-600", className)}>
+      {up ? "▲" : "▼"} {Math.abs(value)}{suffix}
+    </span>
+  );
+}
+
 export function ScoreBar({ value, tone = "brand", className }: { value: number; tone?: string; className?: string }) {
   return (
     <div className={cx("h-1.5 w-full overflow-hidden rounded-full bg-line", className)}>

@@ -47,6 +47,11 @@ export function retentionSummary(technicians, today = new Date()) {
   // #15 — net headcount trajectory over the last 90 days (real start/exit dates).
   const ago = new Date(today); ago.setDate(ago.getDate() - 90);
   const headcountTrend = active.length - activeAsOf(technicians, ago);
+  // Real 12-week weekly active-headcount series for sparklines (oldest → newest).
+  const headcountSeries = Array.from({ length: 12 }, (_, i) => {
+    const w = new Date(today); w.setDate(w.getDate() - (11 - i) * 7);
+    return activeAsOf(technicians, w);
+  });
 
   const markets = [...new Set(technicians.map((t) => t.market))];
   const byMarket = markets.map((mk) => {
@@ -65,7 +70,7 @@ export function retentionSummary(technicians, today = new Date()) {
 
   return {
     active: active.length, exited_90d: recentExits.length, attrition_rate: attritionRate,
-    avg_tenure_days: avgTenureDays, headcount_trend: headcountTrend,
+    avg_tenure_days: avgTenureDays, headcount_trend: headcountTrend, headcount_series: headcountSeries,
     early, byReason: tally(exited.map((t) => t.exit_reason || "Unknown")),
     byType: tally(exited.map((t) => t.exit_type || "Unknown")),
     bySource: tally(exited.map((t) => t.hire_source || "Unknown")),

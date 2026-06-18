@@ -137,6 +137,7 @@ function isWithinDays(dateStr, days) {
 
 router.get("/summary", (req, res) => {
   const markets = allMarketsEnriched();
+  const wf = retentionSummary(allTechnicians()); // real active-workforce trend for the hero
   const byStatus = {};
   for (const m of markets) byStatus[m.rec.readiness_status] = (byStatus[m.rec.readiness_status] || 0) + 1;
 
@@ -189,6 +190,7 @@ router.get("/summary", (req, res) => {
   res.json({
     generated_at: nowISO(),
     signal,
+    workforce: { active: wf.active, trend: wf.headcount_trend, series: wf.headcount_series, attrition: wf.attrition_rate },
     byStatus,
     understaffed,
     capacityBlocked: byState("Capacity-blocked"),

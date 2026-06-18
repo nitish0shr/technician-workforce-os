@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { TopNav } from "./components/TopNav";
 import { Toaster } from "./components/toast";
 import { useAsync } from "./lib/hooks";
@@ -22,12 +22,13 @@ import OperatingRules from "./pages/OperatingRules";
 export default function App() {
   const { data: markets } = useAsync<Market[]>(() => api.markets(), []);
   const list = markets || [];
+  const { pathname } = useLocation();
 
   return (
     <div className="app-bg flex min-h-screen flex-col text-ink">
       <TopNav markets={list} />
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 sm:py-6">
+        <div key={pathname} className="mx-auto w-full max-w-[1480px] animate-fade-in px-4 py-5 sm:px-6 sm:py-6">
           <Routes>
             <Route path="/" element={<ReqPlanner />} />
             <Route path="/overview" element={<CommandCenter />} />
