@@ -294,6 +294,7 @@ export function seedAll(force = false) {
   seedWorkflow(force);
   seedTechnicians(force);
   seedPlanningAreas(force);
+  seedCandidates(force);
 }
 
 // Allow `npm run seed` to (re)build the database from scratch.

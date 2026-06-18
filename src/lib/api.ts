@@ -32,6 +32,7 @@ export const api = {
   reqPlanner: () => req<any>("/req-planner"),
   retention: () => req<any>("/retention"),
   stability: () => req<any>("/stability"),
+  reqHealth: () => req<any>("/req-health"),
   actionCenter: () => req<any>("/action-center"),
   startReadiness: () => req<any>("/start-readiness"),
   dataHealth: () => req<any[]>("/data-health"),

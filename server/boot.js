@@ -1,7 +1,7 @@
 // Cold-start seeding shared by the long-running server (server/index.js) and the
 // Vercel serverless entry (api/index.js). Idempotent and safe to call repeatedly:
 // it only seeds an empty database and otherwise just reconciles the rule set.
-import { seedAll, ensureRules, pruneRules, seedTechnicians, seedPlanningAreas } from "./seed.js";
+import { seedAll, ensureRules, pruneRules, seedTechnicians, seedPlanningAreas, seedCandidates } from "./seed.js";
 import { db } from "./db.js";
 
 let booted = false;
@@ -19,6 +19,7 @@ export function boot() {
     pruneRules();  // drop retired rules (e.g. the old cost assumptions)
     seedTechnicians();   // technician roster for retention
     seedPlanningAreas(); // planning-area requisition-planning data if empty
+    seedCandidates();    // candidate funnel for requisition health (PRD §14.13)
   } catch (e) {
     console.error("[workforce-os] Seed check failed:", e.message);
   }

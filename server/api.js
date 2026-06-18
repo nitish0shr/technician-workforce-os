@@ -6,9 +6,11 @@ import { parseCSV, toCSV, coerceMarketRow, MARKET_CSV_COLUMNS } from "./csv.js";
 import { retentionSummary } from "./pipeline.js";
 import { reqPlannerReport } from "./reqplanner.js";
 import { marketStability } from "./stability.js";
+import { reqHealthReport } from "./reqhealth.js";
 
 const tally = (arr) => { const m = {}; for (const x of arr) m[x] = (m[x] || 0) + 1; return m; };
 const allTechnicians = () => db.prepare("SELECT * FROM technicians").all();
+const allCandidates = () => db.prepare("SELECT * FROM candidates").all();
 
 const router = express.Router();
 const nowISO = () => new Date().toISOString();
@@ -481,6 +483,16 @@ router.get("/stability", (req, res) => {
   const byAction = {};
   for (const r of rows) byAction[r.committed_action] = (byAction[r.committed_action] || 0) + 1;
   res.json({ generated_at: nowISO(), summary, byAction, rows });
+});
+
+/* --------------------------- requisition health -------------------------- */
+// PRD §14.13 — diagnose WHY hiring isn't working (volume / interview→offer /
+// offer acceptance / pre-start fallout / recruiter capacity) and prescribe the
+// matching intervention instead of opening another req.
+router.get("/req-health", (req, res) => {
+  const markets = allMarketsEnriched();
+  const candidates = allCandidates();
+  res.json({ generated_at: nowISO(), ...reqHealthReport(candidates, markets) });
 });
 
 /* ------------------------------- changes --------------------------- */

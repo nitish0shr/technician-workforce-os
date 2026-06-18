@@ -11,6 +11,7 @@ import DemandSupply from "./pages/DemandSupply";
 import ReqPlanner from "./pages/ReqPlanner";
 import Retention from "./pages/Retention";
 import Stability from "./pages/Stability";
+import ReqHealth from "./pages/ReqHealth";
 import ActionCenter from "./pages/ActionCenter";
 import MarketReadiness from "./pages/MarketReadiness";
 import StartReadiness from "./pages/StartReadiness";
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/action-center" element={<ActionCenter />} />
             <Route path="/retention" element={<Retention />} />
             <Route path="/stability" element={<Stability />} />
+            <Route path="/req-health" element={<ReqHealth />} />
             <Route path="/demand-supply" element={<DemandSupply />} />
             <Route path="/market-readiness" element={<MarketReadiness />} />
             <Route path="/start-readiness" element={<StartReadiness />} />
